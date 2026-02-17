@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-primary: 79 70 229; /* Indigo 600 */
+    --surface-base: 253 253 254;
+    --surface-elevated: 255 255 255;
+  }
+
+  body {
+    /* Ultra-clean corporate background with a subtle slate tint */
+    @apply bg-[#FDFDFE] text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-900;
+    
+    /* Optimized for modern corporate typography (Plus Jakarta Sans / Inter / Geist) */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01", "kern";
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* Corporate Glassmorphism: High-contrast with multi-layered shadows */
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white shadow-[0_8px_32px_0_rgba(31,38,135,0.03)] ring-1 ring-slate-200/50;
+  }
+
+  /* Real-time Data Card: Professional elevation with interactive hover */
+  .stat-card {
+    @apply bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1 hover:border-indigo-100/50;
+  }
+
+  /* High-end Form Logic: Balanced height and focus states */
+  .form-input {
+    @apply w-full px-5 py-3.5 rounded-xl border-2 border-slate-50 bg-slate-50/50 outline-none transition-all text-base font-semibold placeholder:text-slate-400 focus:border-indigo-600/50 focus:bg-white focus:ring-8 focus:ring-indigo-500/5 shadow-inner;
+  }
+
+  /* Professional CTA: Heavy weight, corporate indigo with deep shadow */
+  .btn-primary {
+    @apply bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 transition-all duration-500 hover:bg-indigo-700 hover:shadow-2xl hover:shadow-indigo-600/30 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3;
+  }
+
+  /* Dashboard Secondary: Muted but authoritative */
+  .btn-secondary {
+    @apply bg-white text-slate-700 px-8 py-4 rounded-2xl font-bold border border-slate-200 shadow-sm transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98];
+  }
+
+  /* Status Indicators for 'Real-time' feel */
+  .status-indicator {
+    @apply flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] border shadow-sm;
+  }
+  
+  .status-live {
+    @apply bg-emerald-50 text-emerald-600 border-emerald-100/50;
+  }
+}
+
+@layer utilities {
+  /* Precise pulse for "Live" data indicators without being distracting */
+  .animate-live-pulse {
+    animation: live-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.15); }
+  }
+
+  /* High-performance transitions */
+  .motion-safe-ui {
+    @apply transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)];
+  }
+}
+
+/* Polished Corporate Scrollbar: Minimalist and unobtrusive */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+
+/* Typography refinement for corporate branding */
+.tracking-corporate {
+  letter-spacing: -0.04em;
+}
+
+/* Subtle gradient background for the root main element */
+.bg-corporate-mesh {
+  background-color: #FDFDFE;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(232, 100%, 95%, 1) 0, transparent 50%), 
+    radial-gradient(at 100% 100%, hsla(232, 100%, 98%, 1) 0, transparent 50%);
+}
