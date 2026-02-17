@@ -1,37 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+HireSync Enterprise CMS - Employer Job Portal
 
-## Getting Started
+HireSync is a professional, high-density corporate recruitment management system. It allows employers to manage the full lifecycle of job vacancies through a secure, administrative interface built on the MERN stack with TypeScript.
 
-First, run the development server:
+🚀 Tech Stack
 
-```bash
+Frontend: Next.js 14 (App Router), React, Tailwind CSS v4, Framer Motion, Lucide Icons.
+
+Backend: Node.js, Express.js, TypeScript.
+
+Database: MongoDB Atlas (via Mongoose).
+
+Communication: Axios for RESTful API synchronization.
+
+🔐 Strict Authentication Rules
+
+This system implements a strict administrative gateway. Access to the management cluster is restricted to a single master identity:
+
+Corporate Email: admin@hiresync.com
+
+Security Key: admin123
+
+Any other credentials will be rejected by both the client-side gateway and the server-side Node partition.
+
+🛠️ Setup Instructions
+
+1. Prerequisite: MongoDB Atlas
+
+Create a cluster on MongoDB Atlas.
+
+In Network Access, add IP 0.0.0.0/0 (Allow access from anywhere) for development.
+
+Create a database user and copy the Connection String.
+
+2. Backend Configuration (Node.js/Express)
+
+Navigate to the backend/ directory.
+
+Install dependencies:
+
+npm install
+
+
+Create a .env file in the backend/ root:
+
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+NODE_ENV=development
+
+
+Run the development server (auto-restarts on changes):
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Frontend Configuration (Next.js)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Navigate to the frontend/ directory.
 
-## Learn More
+Install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Create a .env.local file in the frontend/ root:
 
-## Deploy on Vercel
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# job-portal-frontend" 
+Run the development application:
+
+npm run dev
+
+
+Open http://localhost:3000 in your browser.
+
+📂 Key Features
+
+High-Density Dashboard: Optimized for scanning large volumes of recruitment data with real-time KPI tracking.
+
+Full CRUD Engine: Standardized forms for defining (creating), optimizing (editing), and purging (deleting) job records.
+
+Geography & Budget Consistency: Enforced dropdown selections for Location and Salary to ensure data integrity, with "Other..." support for custom entries.
+
+Responsive CMS Shell: Professional sidebar layout with collapsible states for optimized screen real estate.
+
+Indian Rupee Integration: System-wide support for ₹ (LPA) compensation bands.
+
+🏗️ Project Architecture
+
+├── backend/
+│   ├── config/          # MongoDB connection logic
+│   ├── controllers/     # Business logic for Auth and Jobs
+│   ├── models/          # Mongoose Schemas (Job, User)
+│   ├── routes/          # API Endpoint definitions
+│   └── server.ts        # Express entry point
+└── frontend/
+    ├── app/             # Next.js App Router (Pages & Layout)
+    ├── components/      # Reusable UI (Navbar, Card, Form, Loader)
+    ├── lib/             # Shared TypeScript constants
+    └── services/        # Axios API instance
+
+
+🌐 Deployment Note
+
+Backend: Hosted on Render/Railway. Set Root Directory to backend.
+
+Frontend: Hosted on Vercel. Set Root Directory to frontend.
+
+Database: Ensure MongoDB Atlas IP whitelist includes 0.0.0.0/0 for production reachability.
