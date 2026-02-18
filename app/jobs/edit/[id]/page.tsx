@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import { 
   ChevronLeft, 
   Edit3, 
@@ -18,7 +17,8 @@ import axios from 'axios';
 
 /**
  * HIRESYNC ENTERPRISE CMS - EDIT PAGE
- * * FIX: Implemented 'useParams' to resolve 404/500 errors by fetching the actual URL ID.
+ * * FIX: Switched to native URL parsing to resolve 'next/navigation' resolution errors in the Canvas.
+ * * SYNC: Automated retrieval and optimization of MongoDB records via active API cluster.
  */
 
 interface Job {
@@ -77,7 +77,7 @@ const Navbar = () => (
       <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100 group-hover:rotate-6 transition-transform">
         <Target className="w-6 h-6 text-white" />
       </div>
-      <span className="text-xl font-black tracking-tighter text-slate-900 uppercase">HireSync</span>
+      <span className="text-xl font-black tracking-tighter text-slate-900 uppercase italic">Hire<span className="not-italic text-indigo-600">Sync</span></span>
     </div>
     <div className="flex items-center gap-6">
       <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100">
@@ -99,12 +99,20 @@ const Loader = () => (
 );
 
 export default function EditJobPage() {
-  const params = useParams();
-  const id = params?.id as string;
-
+  const [id, setId] = useState<string | null>(null);
   const [initialData, setInitialData] = useState<JobInput | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Native URL parsing for environment compatibility
+  useEffect(() => {
+    const pathParts = window.location.pathname.split('/');
+    const extractedId = pathParts[pathParts.length - 1];
+    if (extractedId && extractedId !== 'edit') {
+      setId(extractedId);
+    }
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -127,16 +135,25 @@ export default function EditJobPage() {
     fetchJob();
   }, [id]);
 
-  const handleUpdate = async (data: JobInput) => {
-    await jobService.update(id, data);
-    window.location.href = "/";
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !initialData) return;
+    
+    setSaving(true);
+    try {
+      await jobService.update(id, initialData);
+      window.location.href = "/";
+    } catch (err) {
+      setError("Failed to commit changes to the database.");
+      setSaving(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#FDFDFE] antialiased text-slate-900 selection:bg-indigo-100">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-6 py-12">
+      <div className="max-w-4xl mx-auto px-6 py-12">
         <button onClick={() => window.location.href = '/'} className="inline-flex items-center gap-2 text-slate-400 hover:text-indigo-600 mb-8 font-bold text-xs uppercase tracking-widest transition-colors group">
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Console
         </button>
@@ -153,39 +170,121 @@ export default function EditJobPage() {
             </button>
           </div>
         ) : initialData && (
-          <div className="bg-white rounded-3xl border border-zinc-200 p-8 shadow-sm max-w-4xl mx-auto">
-            <div className="flex items-center gap-5 mb-10 border-b border-zinc-50 pb-8">
-              <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100">
-                <Edit3 className="w-6 h-6 text-white" />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-[2.5rem] border border-zinc-200 p-8 md:p-12 shadow-sm"
+          >
+            <div className="flex items-center gap-6 mb-12 border-b border-zinc-50 pb-10">
+              <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-100">
+                <Edit3 className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Optimize Record</h1>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Admin Partition: Node 421</p>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Optimize Record</h1>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Admin Partition: Secure Node 421</p>
               </div>
             </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); handleUpdate(initialData); }} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleUpdate} className="space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Job Designation</label>
-                  <input required value={initialData.title} onChange={e => setInitialData({...initialData, title: e.target.value})} className="w-full px-4 py-3 bg-zinc-50/50 border border-zinc-200 rounded-xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-bold text-slate-800" />
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Job Designation</label>
+                  <input 
+                    required 
+                    value={initialData.title} 
+                    onChange={e => setInitialData({...initialData, title: e.target.value})} 
+                    className="w-full px-5 py-4 bg-zinc-50/50 border border-zinc-200 rounded-2xl focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-bold text-slate-800 shadow-inner" 
+                    placeholder="e.g. Senior Software Architect"
+                  />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Organization</label>
-                  <input required value={initialData.company} onChange={e => setInitialData({...initialData, company: e.target.value})} className="w-full px-4 py-3 bg-zinc-50/50 border border-zinc-200 rounded-xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-bold text-slate-800" />
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Organization</label>
+                  <input 
+                    required 
+                    value={initialData.company} 
+                    onChange={e => setInitialData({...initialData, company: e.target.value})} 
+                    className="w-full px-5 py-4 bg-zinc-50/50 border border-zinc-200 rounded-2xl focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-bold text-slate-800 shadow-inner" 
+                    placeholder="Company Name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Geography</label>
+                  <div className="relative group">
+                    <select 
+                      required 
+                      value={initialData.location} 
+                      onChange={e => setInitialData({...initialData, location: e.target.value})} 
+                      className="w-full px-5 py-4 bg-zinc-50/50 border border-zinc-200 rounded-2xl focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-bold text-slate-800 shadow-inner appearance-none cursor-pointer"
+                    >
+                      {LOCATIONS.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform group-focus-within:rotate-180" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Compensation Range</label>
+                  <div className="relative group">
+                    <select 
+                      required 
+                      value={initialData.salary} 
+                      onChange={e => setInitialData({...initialData, salary: e.target.value})} 
+                      className="w-full px-5 py-4 bg-zinc-50/50 border border-zinc-200 rounded-2xl focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-bold text-slate-800 shadow-inner appearance-none cursor-pointer"
+                    >
+                      {SALARY_RANGES.map(range => <option key={range} value={range}>{range}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform group-focus-within:rotate-180" />
+                  </div>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Contract Classification</label>
+                  <div className="relative group">
+                    <select 
+                      required 
+                      value={initialData.jobType} 
+                      onChange={e => setInitialData({...initialData, jobType: e.target.value})} 
+                      className="w-full px-5 py-4 bg-zinc-50/50 border border-zinc-200 rounded-2xl focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-bold text-slate-800 shadow-inner appearance-none cursor-pointer"
+                    >
+                      {JOB_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform group-focus-within:rotate-180" />
+                  </div>
                 </div>
               </div>
+
               <div className="space-y-2">
-                <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Role Description</label>
-                <textarea required rows={6} value={initialData.description} onChange={e => setInitialData({...initialData, description: e.target.value})} className="w-full px-4 py-4 bg-zinc-50/50 border border-zinc-200 rounded-xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-medium text-slate-600 resize-none leading-relaxed" />
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Role Description & Deliverables</label>
+                <textarea 
+                  required 
+                  rows={8} 
+                  value={initialData.description} 
+                  onChange={e => setInitialData({...initialData, description: e.target.value})} 
+                  className="w-full px-6 py-5 bg-zinc-50/50 border border-zinc-200 rounded-[2rem] focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white transition-all outline-none font-medium text-slate-600 resize-none leading-relaxed shadow-inner" 
+                  placeholder="Outline requirements, responsibilities, and key metrics..."
+                />
               </div>
-              <div className="flex items-center gap-4 pt-4">
-                <button type="submit" className="flex-1 bg-indigo-600 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                  <Save className="w-4 h-4" /> Commit Changes
+
+              <div className="flex flex-col sm:flex-row items-center gap-4 pt-6">
+                <button 
+                  type="submit" 
+                  disabled={saving}
+                  className="w-full sm:flex-[2] bg-indigo-600 hover:bg-slate-900 text-white px-8 py-5 rounded-2xl font-black text-lg shadow-xl shadow-indigo-100 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
+                  <span className="uppercase tracking-widest">Commit Optimization</span>
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => window.location.href = '/'}
+                  className="w-full sm:flex-1 bg-white text-slate-400 hover:text-slate-600 px-8 py-5 rounded-2xl font-bold border border-zinc-200 transition-all active:scale-[0.98]"
+                >
+                  Discard Changes
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
