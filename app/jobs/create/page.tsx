@@ -8,7 +8,8 @@ import {
   Loader2, 
   Target, 
   Bell,
-  ChevronDown
+  ChevronDown,
+  AlertCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -17,6 +18,7 @@ import axios from 'axios';
  * HIRESYNC ENTERPRISE CMS - CREATE PAGE
  * * FIX: Resolved 404 error by ensuring POST request targets the live Render cluster.
  * * FIX: Consolidated logic to bypass "next/navigation" and local import resolution issues.
+ * * FIX: Added missing AlertCircle import to resolve build errors.
  */
 
 // --- Constants & Configuration ---
