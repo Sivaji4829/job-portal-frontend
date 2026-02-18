@@ -615,7 +615,7 @@ interface AppNotification {
 }
 
 // --- Internal Service Logic ---
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://job-portal-backend-2uzz.onrender.com/api';
 const MOCK_STORAGE_KEY = 'hiresync_enterprise_v4_cms';
 
 const jobService = {
